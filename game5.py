@@ -3,23 +3,26 @@ import pygame
 
 pygame.init()
 
-# Set the window size
-size = 600, 500
-w, h = size
-
-screen = pygame.display.set_mode(size)
-
 BLACK = 0, 0, 0
 RED = 255, 0, 0
 GRAY = 150, 150, 150
 YELLOW = 255, 255, 0
-r = 25
 
+
+COLS = 8
+ROWS = 6
 BALL_COLOR = RED
 BALL_RADIUS = 20
 WALL_COLOR = GRAY
 CELL_WIDTH = 50
 CELL_HEIGHT = 50
+
+# Set the window size
+size = COLS*CELL_WIDTH, ROWS*CELL_HEIGHT
+w, h = size
+
+screen = pygame.display.set_mode(size)
+
 
 WALLS = [
     (3, 4),
@@ -63,20 +66,45 @@ def bound(x, minvalue, maxvalue):
     else:
         return x
 
+def move(new_x, new_y):
+    """Move the ball to (new_x, new_y) if possible.
+    If moving there is not possible, the ball position
+    will not be changed.
+    """
+    global x, y
+    # if new_x < 0 or new_x >= COLS:
+    #     return
+    # if new_y < 0 or new_y >= ROWS:
+    #     return
+    # if (new_x, new_y) in WALLS:
+    #     return
+    if is_move_allowed(new_x, new_y):
+        x, y = new_x, new_y
+    else:
+        # TODO: play beep sound
+        print("Not possible!")
+
+def is_move_allowed(x, y):
+    return (
+        0 <= x < COLS
+        and 0 <= y < ROWS
+        and (x, y) not in WALLS
+        )
+
 def main():
-    global x
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    if (x+1, y) in WALLS:
-                        print("Not possible!")
-                    else:
-                        x = x+1
+                    move(x+1, y)
                 elif event.key == pygame.K_LEFT:
-                    x = x-1
+                    move(x-1, y)
+                elif event.key == pygame.K_UP:
+                    move(x, y-1)
+                elif event.key == pygame.K_DOWN:
+                    move(x, y+1)
 
         paint()
         pygame.display.flip()
